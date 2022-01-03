@@ -1,5 +1,5 @@
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://microsoft.github.io/AzureClusterlessHPC.jl/)
-[![CI](https://github.com/microsoft/AzureClusterlessHPC.jl/actions/workflows/runtests.yml/badge.svg)](https://github.com/microsoft/AzureClusterlessHPC.jl/actions/workflows/runtests.yml)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://github.com/danielscholl/AzureClusterlessHPC.jl/)
+[![CI](https://github.com/microsoft/AzureClusterlessHPC.jl/actions/workflows/runtests.yml/badge.svg)](https://github.com/danielscholl/AzureClusterlessHPC.jl/actions/workflows/build.yml)
 
 # AzureClusterlessHPC.jl - Simplified distributed computing
 
