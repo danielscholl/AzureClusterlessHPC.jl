@@ -19,19 +19,9 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v2
 
-      - name: Run Bicep Build action
-        uses: ./
+      - name: Validate Template Resources
+        uses: Azure/cli@1.0.4
         with:
-          bicepFilePath: ./main.bicep
-          outputFilePath: ./azuredeploy.json
+          inlineScript: |
+            az bicep build --file main.bicep --outdir .
 
-      - name: Test action output
-        shell: bash
-        run: |
-          FILE="./azuredeploy.json"
-          if test -f "$FILE"; then
-            echo "$FILE created successfully"
-          else
-            echo "$FILE not found."
-            exit 1
-          fi
