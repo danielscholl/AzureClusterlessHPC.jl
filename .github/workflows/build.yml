@@ -25,3 +25,8 @@ jobs:
           inlineScript: |
             az bicep build --file main.bicep --outdir .
 
+      - name: CheckIn
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: 'Updated ARM Template'
+          add: '.'
