@@ -16,16 +16,31 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
+
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Code checkout
+        uses: actions/checkout@v2
+
+      - name: Run Bicep Build action
+        uses: ./
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-      - name: Bicep Build
-        uses: Azure/bicep-build-action@v1.0.0
-        with:
-          bicepFilePath: main.bicep
-          outputFilePath: azuredeploy.json
+          bicepFilePath: ./main.bicep
+          outputFilePath: ./azuredeploy.json
+
+      - name: Test action output
+        shell: bash
+        run: |
+          FILE="./azuredeploy.json"
+          if test -f "$FILE"; then
+            echo "$FILE created successfully"
+          else
+            echo "$FILE not found."
+            exit 1
+          fi
 
   # This workflow contains a single job called "build"
   # test:
