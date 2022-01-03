@@ -4,25 +4,20 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "9713967746151708906"
+      "version": "0.4.1124.51302",
+      "templateHash": "1227872923748807056"
     }
   },
   "parameters": {
-    "prefix": {
-      "type": "string",
-      "defaultValue": "iac"
-    },
     "groupName": {
       "type": "string",
-      "defaultValue": "[format('{0}-bicep', parameters('prefix'))]"
+      "defaultValue": "clusterless-hpc"
     },
     "location": {
       "type": "string",
-      "defaultValue": "centralus"
+      "defaultValue": "southcentralus"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
@@ -32,7 +27,99 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
+      "name": "user_identity",
+      "resourceGroup": "[parameters('groupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[format('{0}-identity', parameters('groupName'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "9286485346537815217"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "User Managed Identity Name."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "User Managed Identity Location."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags."
+              }
+            },
+            "enableDeleteLock": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Enable lock to prevent accidental deletion"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2018-11-30",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            },
+            {
+              "condition": "[parameters('enableDeleteLock')]",
+              "type": "Microsoft.Authorization/locks",
+              "apiVersion": "2016-09-01",
+              "scope": "[format('Microsoft.ManagedIdentity/userAssignedIdentities/{0}', parameters('name'))]",
+              "name": "[format('{0}-lock', parameters('name'))]",
+              "properties": {
+                "level": "CanNotDelete"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "resourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))]"
+            },
+            "principalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))).principalId]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('groupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "azure_storage",
       "resourceGroup": "[parameters('groupName')]",
       "properties": {
@@ -40,15 +127,19 @@
           "scope": "inner"
         },
         "mode": "Incremental",
-        "parameters": {},
+        "parameters": {
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('groupName')), 'Microsoft.Resources/deployments', 'user_identity'), '2020-10-01').outputs.principalId.value]"
+          }
+        },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "15220960631018384223"
+              "version": "0.4.1124.51302",
+              "templateHash": "5183820206529825265"
             }
           },
           "parameters": {
@@ -130,7 +221,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "role": {
               "Owner": "[format('/subscriptions/{0}/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635', subscription().subscriptionId)]",
@@ -145,7 +235,7 @@
             {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2021-04-01",
-              "name": "[replace(parameters('name'), '-', '')]",
+              "name": "[replace(format('{0}', parameters('name')), '-', '')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
               "sku": {
@@ -161,26 +251,26 @@
               "condition": "[parameters('enableDeleteLock')]",
               "type": "Microsoft.Authorization/locks",
               "apiVersion": "2016-09-01",
-              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', replace(parameters('name'), '-', ''))]",
-              "name": "[format('{0}-lock', replace(parameters('name'), '-', ''))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', replace(format('{0}', parameters('name')), '-', ''))]",
+              "name": "[format('{0}-lock', replace(format('{0}', parameters('name')), '-', ''))]",
               "properties": {
                 "level": "CanNotDelete"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', replace(parameters('name'), '-', ''))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', replace(format('{0}', parameters('name')), '-', ''))]"
               ]
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', replace(parameters('name'), '-', ''))]",
-              "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', replace(parameters('name'), '-', '')), parameters('name'))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', replace(format('{0}', parameters('name')), '-', ''))]",
+              "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', replace(format('{0}', parameters('name')), '-', '')), parameters('name'))]",
               "properties": {
                 "roleDefinitionId": "[variables('role')[parameters('builtInRoleType')]]",
                 "principalId": "[parameters('principalId')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', replace(parameters('name'), '-', ''))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', replace(format('{0}', parameters('name')), '-', ''))]"
               ]
             },
             {
@@ -202,7 +292,7 @@
                   {
                     "name": "[parameters('privateEndpointName')]",
                     "properties": {
-                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', replace(parameters('name'), '-', ''))]",
+                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', replace(format('{0}', parameters('name')), '-', ''))]",
                       "groupIds": [
                         "blob"
                       ]
@@ -214,7 +304,7 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', replace(parameters('name'), '-', ''))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', replace(format('{0}', parameters('name')), '-', ''))]"
               ]
             },
             {
@@ -257,6 +347,7 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('groupName')), 'Microsoft.Resources/deployments', 'user_identity')]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('groupName'))]"
       ]
     }
