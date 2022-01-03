@@ -25,46 +25,46 @@ jobs:
           outputFilePath: azuredeploy.json
 
   # This workflow contains a single job called "build"
-  test:
+  # test:
 
-    name: Julia ${{ matrix.version }} - ${{ matrix.tests }} - ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    env:
-      test_suite:  ${{ matrix.tests }}
+  #   name: Julia ${{ matrix.version }} - ${{ matrix.tests }} - ${{ matrix.os }}
+  #   runs-on: ${{ matrix.os }}
+  #   env:
+  #     test_suite:  ${{ matrix.tests }}
 
-    strategy:
-      fail-fast: false
+  #   strategy:
+  #     fail-fast: false
 
-      matrix:
-        version: ['1.5', '1.6']
-        os: [ubuntu-latest]
+  #     matrix:
+  #       version: ['1.5', '1.6']
+  #       os: [ubuntu-latest]
 
-    steps:
-      - name: Checkout AzureClusterlessHPC.jl
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout AzureClusterlessHPC.jl
+  #       uses: actions/checkout@v2
 
-      - name: Setup julia
-        uses: julia-actions/setup-julia@v1
-        with:
-          version: ${{ matrix.version }}
+  #     - name: Setup julia
+  #       uses: julia-actions/setup-julia@v1
+  #       with:
+  #         version: ${{ matrix.version }}
 
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
+  #     - name: Set up Python 3.7
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: 3.7
 
-      - name: Install azure resources
-        run: |
-          python3 -m pip install --upgrade pip
-          pip3 install azure-batch==9.0.0 azure-common azure-storage-blob==1.3.1 azure-storage-queue==1.4.0
+  #     - name: Install azure resources
+  #       run: |
+  #         python3 -m pip install --upgrade pip
+  #         pip3 install azure-batch==9.0.0 azure-common azure-storage-blob==1.3.1 azure-storage-queue==1.4.0
 
-      - name: Build AzureClusterlessHPC.jl
-        uses: julia-actions/julia-buildpkg@latest
+  #     - name: Build AzureClusterlessHPC.jl
+  #       uses: julia-actions/julia-buildpkg@latest
 
-      - name: Rebuild PyCall with system python
-        run: |
-          export PYTHON=$(which python)
-          julia --color=yes --check-bounds=yes --project -e 'using Pkg; Pkg.build("PyCall")'
+  #     - name: Rebuild PyCall with system python
+  #       run: |
+  #         export PYTHON=$(which python)
+  #         julia --color=yes --check-bounds=yes --project -e 'using Pkg; Pkg.build("PyCall")'
 
-      - name: Run tests
-        uses: julia-actions/julia-runtest@latest
+  #     - name: Run tests
+  #       uses: julia-actions/julia-runtest@latest
