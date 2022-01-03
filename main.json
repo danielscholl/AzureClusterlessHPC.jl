@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1124.51302",
-      "templateHash": "1227872923748807056"
+      "templateHash": "7033964631087142035"
     }
   },
   "parameters": {
@@ -47,15 +47,18 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "9286485346537815217"
+              "templateHash": "1191652642347697038"
             }
           },
           "parameters": {
             "name": {
               "type": "string",
+              "defaultValue": "[take(format('{0}-{1}', resourceGroup().name, uniqueString(resourceGroup().id)), 24)]",
               "metadata": {
-                "description": "User Managed Identity Name."
-              }
+                "description": "Resource Name."
+              },
+              "maxLength": 24,
+              "minLength": 5
             },
             "location": {
               "type": "string",
@@ -83,7 +86,7 @@
             {
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
-              "name": "[parameters('name')]",
+              "name": "[replace(format('{0}', parameters('name')), '-', '')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]"
             },
@@ -91,24 +94,24 @@
               "condition": "[parameters('enableDeleteLock')]",
               "type": "Microsoft.Authorization/locks",
               "apiVersion": "2016-09-01",
-              "scope": "[format('Microsoft.ManagedIdentity/userAssignedIdentities/{0}', parameters('name'))]",
-              "name": "[format('{0}-lock', parameters('name'))]",
+              "scope": "[format('Microsoft.ManagedIdentity/userAssignedIdentities/{0}', replace(format('{0}', parameters('name')), '-', ''))]",
+              "name": "[format('{0}-lock', replace(format('{0}', parameters('name')), '-', ''))]",
               "properties": {
                 "level": "CanNotDelete"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(format('{0}', parameters('name')), '-', ''))]"
               ]
             }
           ],
           "outputs": {
             "resourceId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))]"
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(format('{0}', parameters('name')), '-', ''))]"
             },
             "principalId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))).principalId]"
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(format('{0}', parameters('name')), '-', ''))).principalId]"
             }
           }
         }
@@ -139,13 +142,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1124.51302",
-              "templateHash": "5183820206529825265"
+              "templateHash": "17187103965361515740"
             }
           },
           "parameters": {
             "name": {
               "type": "string",
-              "defaultValue": "[format('{0}-{1}', resourceGroup().name, uniqueString(resourceGroup().id))]",
+              "defaultValue": "[take(format('{0}-{1}', resourceGroup().name, uniqueString(resourceGroup().id)), 24)]",
               "metadata": {
                 "description": "Resource Name."
               },
@@ -344,6 +347,226 @@
               ]
             }
           ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('groupName')), 'Microsoft.Resources/deployments', 'user_identity')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('groupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "azure_batch",
+      "resourceGroup": "[parameters('groupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {},
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "18068796083927506668"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "defaultValue": "[take(format('{0}-{1}', resourceGroup().name, uniqueString(resourceGroup().id)), 24)]",
+              "metadata": {
+                "description": "Resource Name."
+              },
+              "maxLength": 24,
+              "minLength": 5
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Resource Location."
+              }
+            },
+            "diagnosticLogsRetentionInDays": {
+              "type": "int",
+              "defaultValue": 365,
+              "maxValue": 365,
+              "minValue": 0,
+              "metadata": {
+                "description": "Optional. Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely."
+              }
+            },
+            "diagnosticStorageAccountId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional. Resource ID of the diagnostic storage account."
+              }
+            },
+            "workspaceId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional. Resource ID of log analytics."
+              }
+            },
+            "eventHubAuthorizationRuleId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional. Resource ID of the event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to."
+              }
+            },
+            "eventHubName": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional. Name of the event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category."
+              }
+            },
+            "lock": {
+              "type": "string",
+              "defaultValue": "NotSpecified",
+              "metadata": {
+                "description": "Optional. Specify the type of lock."
+              },
+              "allowedValues": [
+                "CanNotDelete",
+                "NotSpecified",
+                "ReadOnly"
+              ]
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Optional. Tags of the resource."
+              }
+            },
+            "logsToEnable": {
+              "type": "array",
+              "defaultValue": [
+                "ServiceLog"
+              ],
+              "allowedValues": [
+                "ServiceLog"
+              ],
+              "metadata": {
+                "description": "Optional. The name of logs that will be streamed."
+              }
+            },
+            "metricsToEnable": {
+              "type": "array",
+              "defaultValue": [
+                "AllMetrics"
+              ],
+              "allowedValues": [
+                "AllMetrics"
+              ],
+              "metadata": {
+                "description": "Optional. The name of metrics that will be streamed."
+              }
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "diagnosticsLogs",
+                "count": "[length(parameters('logsToEnable'))]",
+                "input": {
+                  "category": "[parameters('logsToEnable')[copyIndex('diagnosticsLogs')]]",
+                  "enabled": true,
+                  "retentionPolicy": {
+                    "enabled": true,
+                    "days": "[parameters('diagnosticLogsRetentionInDays')]"
+                  }
+                }
+              },
+              {
+                "name": "diagnosticsMetrics",
+                "count": "[length(parameters('metricsToEnable'))]",
+                "input": {
+                  "category": "[parameters('metricsToEnable')[copyIndex('diagnosticsMetrics')]]",
+                  "timeGrain": null,
+                  "enabled": true,
+                  "retentionPolicy": {
+                    "enabled": true,
+                    "days": "[parameters('diagnosticLogsRetentionInDays')]"
+                  }
+                }
+              }
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Batch/batchAccounts",
+              "apiVersion": "2020-09-01",
+              "name": "[replace(format('{0}', parameters('name')), '-', '')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {}
+            },
+            {
+              "condition": "[not(equals(parameters('lock'), 'NotSpecified'))]",
+              "type": "Microsoft.Authorization/locks",
+              "apiVersion": "2016-09-01",
+              "scope": "[format('Microsoft.Batch/batchAccounts/{0}', replace(format('{0}', parameters('name')), '-', ''))]",
+              "name": "[format('{0}-{1}-lock', replace(format('{0}', parameters('name')), '-', ''), parameters('lock'))]",
+              "properties": {
+                "level": "[parameters('lock')]",
+                "notes": "[if(equals(parameters('lock'), 'CanNotDelete'), 'Cannot delete resource or child resources.', 'Cannot modify the resource or child resources.')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Batch/batchAccounts', replace(format('{0}', parameters('name')), '-', ''))]"
+              ]
+            },
+            {
+              "condition": "[or(or(or(not(empty(parameters('diagnosticStorageAccountId'))), not(empty(parameters('workspaceId')))), not(empty(parameters('eventHubAuthorizationRuleId')))), not(empty(parameters('eventHubName'))))]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Batch/batchAccounts/{0}', replace(format('{0}', parameters('name')), '-', ''))]",
+              "name": "[format('{0}-diagnosticSettings', replace(format('{0}', parameters('name')), '-', ''))]",
+              "properties": {
+                "storageAccountId": "[if(not(empty(parameters('diagnosticStorageAccountId'))), parameters('diagnosticStorageAccountId'), null())]",
+                "workspaceId": "[if(not(empty(parameters('workspaceId'))), parameters('workspaceId'), null())]",
+                "eventHubAuthorizationRuleId": "[if(not(empty(parameters('eventHubAuthorizationRuleId'))), parameters('eventHubAuthorizationRuleId'), null())]",
+                "eventHubName": "[if(not(empty(parameters('eventHubName'))), parameters('eventHubName'), null())]",
+                "metrics": "[variables('diagnosticsMetrics')]",
+                "logs": "[variables('diagnosticsLogs')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Batch/batchAccounts', replace(format('{0}', parameters('name')), '-', ''))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "batchAccountName": {
+              "type": "string",
+              "value": "[replace(format('{0}', parameters('name')), '-', '')]",
+              "metadata": {
+                "description": "The name of the batch account"
+              }
+            },
+            "batchAccountResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Batch/batchAccounts', replace(format('{0}', parameters('name')), '-', ''))]",
+              "metadata": {
+                "description": "The resource ID of the batch account"
+              }
+            },
+            "batchAccountResourceGroup": {
+              "type": "string",
+              "value": "[resourceGroup().name]",
+              "metadata": {
+                "description": "The resource group the batch account was deployed into"
+              }
+            }
+          }
         }
       },
       "dependsOn": [
