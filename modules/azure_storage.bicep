@@ -3,7 +3,7 @@ targetScope = 'resourceGroup'
 @minLength(5)
 @maxLength(24)
 @description('Resource Name.')
-param name string = '${resourceGroup().name}-${uniqueString(resourceGroup().id)}'
+param name string = take('${resourceGroup().name}-${uniqueString(resourceGroup().id)}', 24)
 
 @description('Resource Location.')
 param location string = resourceGroup().location
@@ -123,9 +123,6 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-07-01' = if (p
       id: privateLinkSettings.subnetId
     }
   }
-  dependsOn: [
-    storage
-  ]
 }
 
 resource privateDNSZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-06-01' = if (privateLinkSettings.vnetId != null && privateLinkSettings.subnetId != null) {
@@ -140,9 +137,6 @@ resource privateDNSZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
       }
     ]
   }
-  dependsOn: [
-    privateDNSZone
-  ]
 }
 
 resource virtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (privateLinkSettings.vnetId != null && privateLinkSettings.subnetId != null) {
@@ -155,7 +149,4 @@ resource virtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
       id: privateLinkSettings.vnetId
     }
   }
-  dependsOn: [
-    privateDNSZone
-  ]
 }

@@ -30,3 +30,13 @@ module storage 'modules/azure_storage.bicep' = {
     batchIdentity
   ]
 }
+
+// Create Batch Account
+module batch 'modules/azure_batch.bicep' = {
+  name: 'azure_batch'
+  scope: resourceGroup
+  params: {}
+  dependsOn: [
+    batchIdentity
+  ]
+}

@@ -1,7 +1,9 @@
 targetScope = 'resourceGroup'
 
-@description('User Managed Identity Name.')
-param name string
+@minLength(5)
+@maxLength(24)
+@description('Resource Name.')
+param name string = take('${resourceGroup().name}-${uniqueString(resourceGroup().id)}', 24)
 
 @description('User Managed Identity Location.')
 param location string = resourceGroup().location
@@ -14,7 +16,7 @@ param enableDeleteLock bool = false
 
 // Create User Identities
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: name
+  name: replace('${name}', '-', '')
   location: location
   tags: tags
 }
