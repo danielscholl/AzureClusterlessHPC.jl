@@ -39,12 +39,14 @@ out = @batchexec pmap(name -> hello_world(name), ["Bob", "Jane"])
 
 ## Installation
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdanielscholl%2FAzureClusterlessHPC.jl%2Fmain%2Fmain.json)
+To install AzureClusterlessHPC.jl, run the following command from an interactive Julia session (press the `]` key and then type the command):
 
-Before being able to use `AzureClusterlessHPC.jl` you need to create a few Azure resources.
+```
+] add AzureClusterlessHPC.jl
+```
 
+Before being able to use `AzureClusterlessHPC.jl` you need to create a few Azure resources. Follow the instructions [here](https://microsoft.github.io/AzureClusterlessHPC.jl/installation/).
 
-(Optional) Manual process instructions [here](https://microsoft.github.io/AzureClusterlessHPC.jl/installation/).
 
 ## Documentation
 

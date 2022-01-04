@@ -35,6 +35,10 @@ APP_NAME="${BASE}app"
 TENANT_ID=`az account show --query tenantId --output tsv`
 SUBSCRIPTION_ID=`az account show --query id --output tsv`
 
+echo $BASE
+
+exit
+
 # Create resource group
 az group create --name ${RESOURCE_GROUP} --location ${REGION}
 
