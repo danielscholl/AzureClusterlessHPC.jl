@@ -243,7 +243,7 @@ then
   julia -e 'using Pkg; using AzureClusterlessHPC;'
   if [ $? -eq 0 ]; then
     tput setaf 4; echo 'Successful Connection to Azure from Julia!' ; tput sgr0
-    mv credentials.json /home/vscode/.julia/dev/AzureClusterlessHPC/credentials.json
+    cp credentials.json /home/vscode/.julia/dev/AzureClusterlessHPC/credentials.json
   else
     tput setaf 1; echo 'Julia Connection to Azure Failure' ; tput sgr0
   fi
