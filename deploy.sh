@@ -10,9 +10,9 @@
 usage() { echo "Usage: deploy.sh <unique> <region>" 1>&2; exit 1; }
 
 AZURE_ACCOUNT=$(az account show --query '[tenantId, id, user.name]' -otsv 2>/dev/null)
-AZURE_TENANT=$(echo $RESULT |awk '{print $1}')
-AZURE_SUBSCRIPTION=$(echo $RESULT |awk '{print $2}')
-AZURE_USER=$(echo $RESULT |awk '{print $3}')
+AZURE_TENANT=$(echo $AZURE_ACCOUNT |awk '{print $1}')
+AZURE_SUBSCRIPTION=$(echo $AZURE_ACCOUNT |awk '{print $2}')
+AZURE_USER=$(echo $AZURE_ACCOUNT |awk '{print $3}')
 
 if [ ! -z $1 ]; then UNIQUE=$1; fi
 if [ -z $UNIQUE ]; then
