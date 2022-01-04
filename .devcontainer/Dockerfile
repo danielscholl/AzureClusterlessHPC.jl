@@ -23,5 +23,3 @@ RUN apt-get update \
   && curl -fsSL https://github.com/fredrikekre/jlpkg/releases/download/v1.4.0/jlpkg-v1.4.0.tar.gz | tar -xzC /usr/local/bin \
   # Clean up
   && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
-
-ENV CREDENTIALS="credentials.json"

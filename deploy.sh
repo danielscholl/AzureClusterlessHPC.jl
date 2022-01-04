@@ -188,7 +188,10 @@ function CreateADApplication() {
     else
         tput setaf 3;  echo "AD Application $1 already exists."; tput sgr0
         APP_ID=$(az group show --name $2 --query tags.APP_ID -otsv 2>/dev/null)
+
+        tput setaf 3;  echo "Resetting AD Application Key."; tput sgr0
         APP_SECRET=$(az ad app credential reset --id $APP_ID --credential-description $(date +%m-%d-%y) --append --query password -otsv 2>/dev/null)
+        sleep 20 && tput setaf 3;  echo "Waiting for AD..."; tput sgr0 && sleep 20
     fi
 }
 
@@ -235,6 +238,13 @@ echo "{
 # Write to credential file
 if command -v julia &> /dev/null
 then
-  tput setaf 2; echo 'Validating Connection...' ; tput sgr0
+  export CREDENTIALS="credentials.json"
+  tput setaf 2; echo 'Validating Azure Connection...' ; tput sgr0  
   julia -e 'using Pkg; using AzureClusterlessHPC;'
+  if [ $? -eq 0 ]; then
+    tput setaf 4; echo 'Successful Connection to Azure from Julia!' ; tput sgr0
+    mv credentials.json /home/vscode/.julia/dev/AzureClusterlessHPC/credentials.json
+  else
+    tput setaf 1; echo 'Julia Connection to Azure Failure' ; tput sgr0
+  fi
 fi
