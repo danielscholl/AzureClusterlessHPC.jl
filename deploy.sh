@@ -231,3 +231,10 @@ echo "{
     \"_STORAGE_ACCOUNT_NAME\": \"${ITEM_NAME}\",
     \"_STORAGE_ACCOUNT_KEY\": \"${STORAGE_KEY}\"
 }" > $FILE_NAME
+
+# Write to credential file
+if command -v julia &> /dev/null
+then
+  tput setaf 2; echo 'Validating Connection...' ; tput sgr0
+  julia -e 'using Pkg; using AzureClusterlessHPC;'
+fi
