@@ -17,6 +17,4 @@ RUN wget "https://julialang-s3.julialang.org/bin/linux/x64/1.6/julia-1.6.1-linux
     ln -s /julia-1.6.1/bin/julia /usr/local/bin/julia
 
 # AzureClusterlessHPC
-RUN julia -e 'using Pkg; Pkg.add.(["PyCall", "JSON", "LightXML"])' && \
-    julia -e 'using Pkg; Pkg.add(url="https://github.com/microsoft/AzureClusterlessHPC.jl")' && \
-    julia -e 'using PyCall; using AzureClusterlessHPC'
+RUN julia -e 'import Pkg; Pkg.develop(url="https://github.com/danielscholl/AzureClusterlessHPC.jl");'

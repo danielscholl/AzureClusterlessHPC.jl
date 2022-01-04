@@ -15,11 +15,13 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/pyre
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends jq
+  && apt-get -y install --no-install-recommends jq
 
 RUN apt-get update \
   # Install Julia
-  && curl -fsSL https://raw.githubusercontent.com/abelsiqueira/jill/main/jill.sh > jill.sh && bash jill.sh --lts --no-confirm \
+  && curl -fsSL https://raw.githubusercontent.com/abelsiqueira/jill/main/jill.sh > jill.sh && bash jill.sh --version 1.6.1 --no-confirm \
   && curl -fsSL https://github.com/fredrikekre/jlpkg/releases/download/v1.4.0/jlpkg-v1.4.0.tar.gz | tar -xzC /usr/local/bin \
   # Clean up
   && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+ENV CREDENTIALS="credentials.json"
