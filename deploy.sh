@@ -235,7 +235,7 @@ echo "{
     \"_STORAGE_ACCOUNT_KEY\": \"${STORAGE_KEY}\"
 }" > $FILE_NAME
 
-# Write to credential file
+# Test Julia Connection
 if command -v julia &> /dev/null
 then
   export CREDENTIALS="credentials.json"
