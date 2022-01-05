@@ -185,6 +185,7 @@ function CreateADApplication() {
 
       az tag create --resource-id /subscriptions/$AZURE_SUBSCRIPTION/resourcegroups/$2 --tags RANDOM=$RANDOM_NUMBER APP_ID=$APP_ID CONTACT=$AZURE_USER -o none 2>/dev/null
       az role assignment create --assignee $APP_ID --role "Contributor" --scope "/subscriptions/${AZURE_SUBSCRIPTION}/resourceGroups/$2" -o none 2>/dev/null
+      sleep 20 && tput setaf 3;  echo "Waiting for AD..."; tput sgr0 && sleep 20
     else
         tput setaf 3;  echo "AD Application $1 already exists."; tput sgr0
         APP_ID=$(az group show --name $2 --query tags.APP_ID -otsv 2>/dev/null)
